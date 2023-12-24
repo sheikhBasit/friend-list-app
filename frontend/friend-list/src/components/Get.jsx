@@ -7,3 +7,5 @@ Axios.get("http://localhost:3000/api/friends")
     .catch((err) => {
         console.log(err);
     });
+
+    
