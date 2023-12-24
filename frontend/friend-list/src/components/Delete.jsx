@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-const GetUser = () => {
+const DeleteUser = () => {
   // State to hold form data
   const [formData, setFormData] = useState({
-    email: '',
+    email: '', // Only need the email for deletion
   });
 
-  // State to hold fetched data
-  const [fetchedData, setFetchedData] = useState(null);
+  // State to hold delete response data
+  const [deleteResponse, setDeleteResponse] = useState(null);
 
   // Handle form input changes
   const handleChange = (e) => {
@@ -20,22 +20,20 @@ const GetUser = () => {
     }));
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
+  // Handle form submission for deleting data
+  const handleDelete = async (e) => {
     e.preventDefault();
 
     try {
-      // Make Axios GET request
-      const response = await axios.get('http://localhost:3000/api/friends', {
-        params: {
-          email: formData.email,
-        },
+      // Make Axios DELETE request with the email parameter
+      const response = await axios.delete('http://localhost:3000/api/friends', {
+        data: { email: formData.email },
       });
 
-      // Set the fetched data in the state
-      setFetchedData(response.data);
+      // Set the delete response data in the state
+      setDeleteResponse(response.data);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error deleting user:', error);
     }
   };
 
@@ -49,7 +47,7 @@ const GetUser = () => {
     <div className="container mt-5">
       <div className="row">
         <div className="col-md-6 offset-md-3">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleDelete}>
             <div className="mb-3">
               <label htmlFor="email" className="form-label">
                 Email
@@ -64,15 +62,16 @@ const GetUser = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary">
-              Fetch Data
+
+            <button type="submit" className="btn btn-danger">
+              Delete User
             </button>
           </form>
 
-          {fetchedData && (
+          {deleteResponse && (
             <div className="mt-4">
-              <h4>Fetched Data:</h4>
-              <pre>{JSON.stringify(fetchedData, null, 2)}</pre>
+              <h4>Delete User Response:</h4>
+              <pre>{JSON.stringify(deleteResponse, null, 2)}</pre>
             </div>
           )}
         </div>
@@ -81,4 +80,4 @@ const GetUser = () => {
   );
 };
 
-export default GetUser;
+export default DeleteUser;

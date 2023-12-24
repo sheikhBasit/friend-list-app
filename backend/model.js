@@ -1,11 +1,14 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
-    firstName: String,
-    lastName: String,
-    email: String,
-    password: String,
-
+// Define the Friend schema
+const friendSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+    age: Number,
+    password: String
 });
 
-mongoose.exports = mongoose.model('User', userSchema);
+// Create and export the Friend model
+const Friend = mongoose.model('Friend', friendSchema);
+
+module.exports = Friend;
