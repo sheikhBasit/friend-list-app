@@ -3,19 +3,18 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const UpdateUser = () => {
-  // State to hold form data
+  const [userEmail, setUserEmail] = useState('');
+  const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({
     id: '',
-    firstName: '',
-    lastName: '',
+    name: '',
+    age: '',
     email: '',
-    password: '',
   });
-
-  // State to hold updated data
   const [updatedData, setUpdatedData] = useState(null);
+  const [error, setError] = useState(null);
+  const [formVisible, setFormVisible] = useState(true);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -24,47 +23,53 @@ const UpdateUser = () => {
     }));
   };
 
-  // Handle form submission for updating data
+  const handleFetchUserId = async (e) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.get(`http://localhost:3001/friendIdByEmail/${userEmail}`);
+      const { id } = response.data;
+
+      const userDataResponse = await axios.get(`http://localhost:3001/friends/${id}`);
+      
+      setUserData(userDataResponse.data);
+      setFormData({
+        id: userDataResponse.data._id,
+        name: userDataResponse.data.name,
+        age: userDataResponse.data.age,
+        email: userDataResponse.data.email,
+      });
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      console.error('Error response:', error.response);
+      setError('Error fetching user data. Please try again.');
+    }
+  };
+
   const handleUpdate = async (e) => {
     e.preventDefault();
 
     try {
-      // Make Axios PUT request
-      const response = await axios.put(
-        `http://localhost:3000/api/friends/${formData.id}`,
-        {
-          name: `${formData.name} ${formData.age}`,
-          email: formData.email,
-        }
-      );
-
-      // Set the updated data in the state
-      setUpdatedData(response.data);
-    } catch (error) {
-      console.error('Error updating data:', error);
-    }
-  };
-
-  useEffect(() => {
-    // Fetch data when the component mounts (optional)
-    // Uncomment the line below if you want to fetch data on component mount
-    // handleUpdate({ preventDefault: () => {} });
-  }, []);
-  
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      // Make Axios POST request
-      const response = await axios.post('http://localhost:3000/api/friends', {
-        name: formData.firstName + ' ' + formData.lastName,
-        age: 23, // Assuming a static age for this example
+      const response = await axios.put(`http://localhost:3001/update/${formData.id}`, {
+        name: formData.name,
+        age: formData.age,
         email: formData.email,
       });
 
-      console.log('Server response:', response.data);
+      setUpdatedData(response.data);
+      setFormData({
+        id: '',
+        name: '',
+        age: '',
+        email: '',
+      });
+      setError(null);
+      setFormVisible(false);
     } catch (error) {
-      console.error('Error submitting form:', error);
+      console.error('Error updating data:', error);
+      console.error('Error response:', error.response);
+      setError('Error updating data. Please try again.');
     }
   };
 
@@ -72,71 +77,83 @@ const UpdateUser = () => {
     <div className="container mt-5">
       <div className="row">
         <div className="col-md-6 offset-md-3">
-        <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="firstName" className="form-label">
-                Name
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="lastName" className="form-label">
-              Age
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="age"
-                name="age"
-                value={formData.age}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="email" className="form-label">
-                Email
-              </label>
-              <input
-                type="email"
-                className="form-control"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <input
-                type="password"
-                className="form-control"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <button type="submit" className="btn btn-primary">
-              Update
-            </button>
-          </form>
+          {(
+            <form onSubmit={handleFetchUserId}>
+              <div className="mb-3">
+                <label htmlFor="userEmail" className="form-label">
+                  User Email
+                </label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="userEmail"
+                  name="userEmail"
+                  value={userEmail}
+                  onChange={(e) => setUserEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Fetch User Data
+              </button>
+            </form>
+          )}
+
+          {userData && formVisible && (
+            <form onSubmit={handleUpdate}>
+              <div className="mb-3">
+                <label htmlFor="name" className="form-label">
+                  Name
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="age" className="form-label">
+                  Age
+                </label>
+                <input
+                  type="text"
+                  className="form-control"
+                  id="age"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">
+                  Email
+                </label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Update
+              </button>
+            </form>
+          )}
+
+          {error && <p className="text-danger mt-3">{error}</p>}
           {updatedData && (
             <div className="mt-4">
               <h4>Updated Data:</h4>
-              <pre>{JSON.stringify(updatedData, null, 2)}</pre>
+              <pre>{JSON.stringify(updatedData)}</pre>
             </div>
           )}
         </div>

@@ -1,17 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const DeleteUser = () => {
-  // State to hold form data
   const [formData, setFormData] = useState({
-    email: '', // Only need the email for deletion
+    email: '',
   });
-
-  // State to hold delete response data
   const [deleteResponse, setDeleteResponse] = useState(null);
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -20,28 +16,31 @@ const DeleteUser = () => {
     }));
   };
 
-  // Handle form submission for deleting data
   const handleDelete = async (e) => {
     e.preventDefault();
 
     try {
-      // Make Axios DELETE request with the email parameter
-      const response = await axios.delete('http://localhost:3000/api/friends', {
-        data: { email: formData.email },
-      });
+      // Make Axios GET request to retrieve the user ID by email
+      const response = await axios.get(`http://localhost:3001/friendIdByEmail/${formData.email}`);
+      
+      if (response.data.id) {
+        // Make Axios DELETE request using the obtained ID
+        const deleteResponse = await axios.delete(`http://localhost:3001/deleteByEmail/${formData.email}`);
+        setDeleteResponse(deleteResponse.data);
 
-      // Set the delete response data in the state
-      setDeleteResponse(response.data);
+        // Reset the email field after successful deletion
+        setFormData((prevData) => ({
+          ...prevData,
+          email: '',
+        }));
+      } else {
+        setDeleteResponse({ message: 'Friend not found.' });
+      }
     } catch (error) {
       console.error('Error deleting user:', error);
+      setDeleteResponse({ message: 'Error deleting user. Please try again.' });
     }
   };
-
-  useEffect(() => {
-    // Fetch data when the component mounts (optional)
-    // Uncomment the line below if you want to fetch data on component mount
-    // handleSubmit({ preventDefault: () => {} });
-  }, []);
 
   return (
     <div className="container mt-5">

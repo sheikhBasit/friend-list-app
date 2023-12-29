@@ -26,7 +26,7 @@ const GetUser = () => {
 
     try {
       // Make Axios GET request
-      const response = await axios.get('http://localhost:3000/api/friends', {
+      const response = await axios.get('http://localhost:3001/friendByEmail', {
         params: {
           email: formData.email,
         },
@@ -38,12 +38,6 @@ const GetUser = () => {
       console.error('Error fetching data:', error);
     }
   };
-
-  useEffect(() => {
-    // Fetch data when the component mounts (optional)
-    // Uncomment the line below if you want to fetch data on component mount
-    // handleSubmit({ preventDefault: () => {} });
-  }, []);
 
   return (
     <div className="container mt-5">

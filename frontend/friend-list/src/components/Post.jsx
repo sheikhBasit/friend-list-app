@@ -5,8 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const UserForm = () => {
   // State to hold form data
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    name: '',
+    age: '',
     email: '',
     password: '',
   });
@@ -26,13 +26,23 @@ const UserForm = () => {
 
     try {
       // Make Axios POST request
-      const response = await axios.post('http://localhost:3000/api/friends', {
-        name: formData.name ,
-        age: 23, // Assuming a static age for this example
-        email: formData.email,
-      });
+      const response = await axios.post('http://localhost:3001/friends', {
+      name: formData.name,
+      age: formData.age,
+      email: formData.email,
+      password: formData.password,
+});
+
 
       console.log('Server response:', response.data);
+
+      // Clear the form fields after successful submission
+      setFormData({
+        name: '',
+        age: '',
+        email: '',
+        password: '',
+      });
     } catch (error) {
       console.error('Error submitting form:', error);
     }
@@ -44,7 +54,7 @@ const UserForm = () => {
         <div className="col-md-6 offset-md-3">
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
-              <label htmlFor="firstName" className="form-label">
+              <label htmlFor="name" className="form-label">
                 Name
               </label>
               <input
@@ -58,7 +68,7 @@ const UserForm = () => {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="lastName" className="form-label">
+              <label htmlFor="age" className="form-label">
                 Age
               </label>
               <input
