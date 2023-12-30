@@ -13,7 +13,7 @@ useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:3001/friends');
-  
+        
         // Assuming your server returns an array as expected
         if (Array.isArray(response.data)) {
           setFetchedData(response.data);
